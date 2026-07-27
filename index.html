@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 毕业相册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #16213e;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .photo-card {
+            background: #0f3460;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            aspect-ratio: 1;
+        }
+        .photo-card:hover {
+            transform: scale(1.05);
+        }
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .lightbox .close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: 0.3s;
+        }
+        .lightbox .close:hover {
+            transform: rotate(90deg);
+        }
+        .lightbox .nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 50px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            padding: 20px 15px;
+            border-radius: 10px;
+            user-select: none;
+            transition: 0.3s;
+            border: none;
+        }
+        .lightbox .nav:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .lightbox .prev {
+            left: 20px;
+        }
+        .lightbox .next {
+            right: 20px;
+        }
+        .lightbox .counter {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 18px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 20px;
+            border-radius: 30px;
+        }
+        @media (max-width: 600px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+            }
+            .lightbox .nav {
+                font-size: 30px;
+                padding: 15px 10px;
+            }
+            .lightbox .prev { left: 10px; }
+            .lightbox .next { right: 10px; }
+            .lightbox .close { top: 20px; right: 20px; font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 毕业 · 拾光</h1>
+        <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <button class="close" id="closeBtn">✕</button>
+        <button class="nav prev" id="prevBtn">‹</button>
+        <button class="nav next" id="nextBtn">›</button>
+        <img id="lightboxImg" src="" alt="毕业照">
+        <div class="counter" id="counter">1 / 0</div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 自动检测 photos 文件夹里 36.jpg 到 78.jpg 哪些存在
+        // 只显示存在的照片
+        // ============================================================
+        const photoGrid = document.getElementById('photoGrid');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const counter = document.getElementById('counter');
+        const closeBtn = document.getElementById('closeBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        let photoUrls = [];
+        let currentIndex = 0;
+
+        // 检查图片是否存在
+        function checkImageExists(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        }
+
+        // 加载所有照片
+        async function loadPhotos() {
+            const tempPhotos = [];
+
+            // 遍历 36 到 78
+            for (let i = 36; i <= 74; i++) {
+                const url = "photos/" + i + ".jpg";
+                const exists = await checkImageExists(url);
+                if (exists) {
+                    tempPhotos.push(url);
+                }
+            }
+
+            photoUrls = tempPhotos;
+
+            if (photoUrls.length === 0) {
+                photoGrid.innerHTML = '<p style="color:#fff; text-align:center; grid-column:1/-1; padding:50px; font-size:18px;">📭 在 photos 文件夹里没找到照片<br><span style="font-size:14px;color:#888;">请确认文件名是 36.jpg ~ 78.jpg</span></p>';
+                return;
+            }
+
+            renderPhotos();
+        }
+
+        function renderPhotos() {
+            let html = '';
+            photoUrls.forEach((url, index) => {
+                html += `
+                    <div class="photo-card" data-index="${index}">
+                        <img src="${url}" alt="毕业照 ${index+1}" loading="lazy">
+                    </div>
+                `;
+            });
+            photoGrid.innerHTML = html;
+
+            // 绑定点击事件
+            document.querySelectorAll('.photo-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const idx = parseInt(this.dataset.index);
+                    openLightbox(idx);
+                });
+            });
+
+            // 更新计数
+            counter.textContent = `1 / ${photoUrls.length}`;
+        }
+
+        function openLightbox(index) {
+            currentIndex = index;
+            lightboxImg.src = photoUrls[currentIndex];
+            counter.textContent = `${currentIndex + 1} / ${photoUrls.length}`;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function prevPhoto() {
+            if (photoUrls.length === 0) return;
+            currentIndex = (currentIndex - 1 + photoUrls.length) % photoUrls.length;
+            lightboxImg.src = photoUrls[currentIndex];
+            counter.textContent = `${currentIndex + 1} / ${photoUrls.length}`;
+        }
+
+        function nextPhoto() {
+            if (photoUrls.length === 0) return;
+            currentIndex = (currentIndex + 1) % photoUrls.length;
+            lightboxImg.src = photoUrls[currentIndex];
+            counter.textContent = `${currentIndex + 1} / ${photoUrls.length}`;
+        }
+
+        // 键盘事件
+        document.addEventListener('keydown', function(e) {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') prevPhoto();
+            if (e.key === 'ArrowRight') nextPhoto();
+        });
+
+        // 按钮事件
+        closeBtn.addEventListener('click', closeLightbox);
+        prevBtn.addEventListener('click', prevPhoto);
+        nextBtn.addEventListener('click', nextPhoto);
+
+        // 点击背景关闭
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        // 开始加载
+        loadPhotos();
+
+        console.log('📸 相册已启动，正在检测照片...');
+    </script>
+</body>
+</html>
