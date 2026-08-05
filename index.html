@@ -159,7 +159,7 @@
 
     <script>
         // ============================================================
-        // 自动检测 photos 文件夹里 36.jpg 到 78.jpg 哪些存在
+        // 自动检测 photos 文件夹里的照片（35.jpg 到 78.jpg）
         // 只显示存在的照片
         // ============================================================
         const photoGrid = document.getElementById('photoGrid');
@@ -173,7 +173,6 @@
         let photoUrls = [];
         let currentIndex = 0;
 
-        // 检查图片是否存在
         function checkImageExists(url) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -183,12 +182,11 @@
             });
         }
 
-        // 加载所有照片
         async function loadPhotos() {
             const tempPhotos = [];
 
-            // 遍历 36 到 78
-            for (let i = 36; i <= 74; i++) {
+            // 遍历 35 到 78（覆盖您的所有照片）
+            for (let i = 35; i <= 78; i++) {
                 const url = "photos/" + i + ".jpg";
                 const exists = await checkImageExists(url);
                 if (exists) {
@@ -199,7 +197,7 @@
             photoUrls = tempPhotos;
 
             if (photoUrls.length === 0) {
-                photoGrid.innerHTML = '<p style="color:#fff; text-align:center; grid-column:1/-1; padding:50px; font-size:18px;">📭 在 photos 文件夹里没找到照片<br><span style="font-size:14px;color:#888;">请确认文件名是 36.jpg ~ 78.jpg</span></p>';
+                photoGrid.innerHTML = '<p style="color:#fff; text-align:center; grid-column:1/-1; padding:50px; font-size:18px;">📭 在 photos 文件夹里没找到照片<br><span style="font-size:14px;color:#888;">请确认文件名是 35.jpg ~ 78.jpg</span></p>';
                 return;
             }
 
@@ -217,7 +215,6 @@
             });
             photoGrid.innerHTML = html;
 
-            // 绑定点击事件
             document.querySelectorAll('.photo-card').forEach(card => {
                 card.addEventListener('click', function() {
                     const idx = parseInt(this.dataset.index);
@@ -225,7 +222,6 @@
                 });
             });
 
-            // 更新计数
             counter.textContent = `1 / ${photoUrls.length}`;
         }
 
@@ -256,7 +252,6 @@
             counter.textContent = `${currentIndex + 1} / ${photoUrls.length}`;
         }
 
-        // 键盘事件
         document.addEventListener('keydown', function(e) {
             if (!lightbox.classList.contains('active')) return;
             if (e.key === 'Escape') closeLightbox();
@@ -264,17 +259,14 @@
             if (e.key === 'ArrowRight') nextPhoto();
         });
 
-        // 按钮事件
         closeBtn.addEventListener('click', closeLightbox);
         prevBtn.addEventListener('click', prevPhoto);
         nextBtn.addEventListener('click', nextPhoto);
 
-        // 点击背景关闭
         lightbox.addEventListener('click', function(e) {
             if (e.target === lightbox) closeLightbox();
         });
 
-        // 开始加载
         loadPhotos();
 
         console.log('📸 相册已启动，正在检测照片...');
