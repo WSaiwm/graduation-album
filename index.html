@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -159,7 +160,7 @@
 
     <script>
         // ============================================================
-        // 直接列出所有照片（来自 git ls-tree 的确认结果）
+        // 直接列出所有照片（硬编码，不检测）
         // ============================================================
         const MY_PHOTOS = [
             "photos/36.jpg",
@@ -211,16 +212,11 @@
         let currentIndex = 0;
 
         function renderPhotos() {
-            if (MY_PHOTOS.length === 0) {
-                photoGrid.innerHTML = '<p style="color:#fff; text-align:center; grid-column:1/-1; padding:50px; font-size:18px;">还没有照片</p>';
-                return;
-            }
-
             let html = '';
             MY_PHOTOS.forEach((url, index) => {
                 html += `
                     <div class="photo-card" data-index="${index}">
-                        <img src="${url}" alt="毕业照 ${index+1}" loading="lazy">
+                        <img src="${url}" alt="毕业照 ${index+1}" loading="lazy" onerror="console.log('加载失败: ${url}')">
                     </div>
                 `;
             });
@@ -234,6 +230,7 @@
             });
 
             counter.textContent = `1 / ${MY_PHOTOS.length}`;
+            document.title = `🎓 毕业相册 (${MY_PHOTOS.length}张)`;
         }
 
         function openLightbox(index) {
@@ -277,7 +274,6 @@
         });
 
         renderPhotos();
-
         console.log('📸 相册已加载，照片数: ' + MY_PHOTOS.length);
     </script>
 </body>
