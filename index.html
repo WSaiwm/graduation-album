@@ -158,6 +158,46 @@
     </div>
 
     <script>
+        // 直接列出所有照片（不检测，直接显示）
+        const MY_PHOTOS = [
+            "photos/36.jpg",
+            "photos/37.jpg",
+            "photos/38.jpg",
+            "photos/39.jpg",
+            "photos/40.jpg",
+            "photos/41.jpg",
+            "photos/44.jpg",
+            "photos/45.jpg",
+            "photos/46.jpg",
+            "photos/47.jpg",
+            "photos/48.jpg",
+            "photos/50.jpg",
+            "photos/51.jpg",
+            "photos/52.jpg",
+            "photos/53.jpg",
+            "photos/54.jpg",
+            "photos/55.jpg",
+            "photos/56.jpg",
+            "photos/57.jpg",
+            "photos/58.jpg",
+            "photos/59.jpg",
+            "photos/60.jpg",
+            "photos/61.jpg",
+            "photos/62.jpg",
+            "photos/63.jpg",
+            "photos/64.jpg",
+            "photos/65.JPG",
+            "photos/66.JPG",
+            "photos/67.jpg",
+            "photos/68.jpg",
+            "photos/69.jpg",
+            "photos/70.jpg",
+            "photos/71.jpg",
+            "photos/72.jpg",
+            "photos/73.jpg",
+            "photos/74.jpg"
+        ];
+
         const photoGrid = document.getElementById('photoGrid');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightboxImg');
@@ -166,51 +206,11 @@
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
 
-        let photoUrls = [];
         let currentIndex = 0;
-
-        function checkImageExists(url) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(true);
-                img.onerror = () => resolve(false);
-                img.src = url;
-            });
-        }
-
-        async function loadPhotos() {
-            const tempPhotos = [];
-
-            // 检测 36.jpg 到 74.jpg（包括 .jpg 和 .JPG）
-            for (let i = 36; i <= 74; i++) {
-                // 先尝试小写 .jpg
-                const urlJpg = "photos/" + i + ".jpg";
-                const existsJpg = await checkImageExists(urlJpg);
-                if (existsJpg) {
-                    tempPhotos.push(urlJpg);
-                    continue;
-                }
-                // 再尝试大写 .JPG
-                const urlJpgUpper = "photos/" + i + ".JPG";
-                const existsJpgUpper = await checkImageExists(urlJpgUpper);
-                if (existsJpgUpper) {
-                    tempPhotos.push(urlJpgUpper);
-                }
-            }
-
-            photoUrls = tempPhotos;
-
-            if (photoUrls.length === 0) {
-                photoGrid.innerHTML = '<p style="color:#fff; text-align:center; grid-column:1/-1; padding:50px; font-size:18px;">📭 在 photos 文件夹里没找到照片<br><span style="font-size:14px;color:#888;">请确认文件名是 36.jpg ~ 74.jpg</span></p>';
-                return;
-            }
-
-            renderPhotos();
-        }
 
         function renderPhotos() {
             let html = '';
-            photoUrls.forEach((url, index) => {
+            MY_PHOTOS.forEach((url, index) => {
                 html += `
                     <div class="photo-card" data-index="${index}">
                         <img src="${url}" alt="毕业照 ${index+1}" loading="lazy">
@@ -226,13 +226,13 @@
                 });
             });
 
-            counter.textContent = `1 / ${photoUrls.length}`;
+            counter.textContent = `1 / ${MY_PHOTOS.length}`;
         }
 
         function openLightbox(index) {
             currentIndex = index;
-            lightboxImg.src = photoUrls[currentIndex];
-            counter.textContent = `${currentIndex + 1} / ${photoUrls.length}`;
+            lightboxImg.src = MY_PHOTOS[currentIndex];
+            counter.textContent = `${currentIndex + 1} / ${MY_PHOTOS.length}`;
             lightbox.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -243,17 +243,15 @@
         }
 
         function prevPhoto() {
-            if (photoUrls.length === 0) return;
-            currentIndex = (currentIndex - 1 + photoUrls.length) % photoUrls.length;
-            lightboxImg.src = photoUrls[currentIndex];
-            counter.textContent = `${currentIndex + 1} / ${photoUrls.length}`;
+            currentIndex = (currentIndex - 1 + MY_PHOTOS.length) % MY_PHOTOS.length;
+            lightboxImg.src = MY_PHOTOS[currentIndex];
+            counter.textContent = `${currentIndex + 1} / ${MY_PHOTOS.length}`;
         }
 
         function nextPhoto() {
-            if (photoUrls.length === 0) return;
-            currentIndex = (currentIndex + 1) % photoUrls.length;
-            lightboxImg.src = photoUrls[currentIndex];
-            counter.textContent = `${currentIndex + 1} / ${photoUrls.length}`;
+            currentIndex = (currentIndex + 1) % MY_PHOTOS.length;
+            lightboxImg.src = MY_PHOTOS[currentIndex];
+            counter.textContent = `${currentIndex + 1} / ${MY_PHOTOS.length}`;
         }
 
         document.addEventListener('keydown', function(e) {
@@ -271,9 +269,9 @@
             if (e.target === lightbox) closeLightbox();
         });
 
-        loadPhotos();
+        renderPhotos();
 
-        console.log('📸 相册已启动，正在检测照片...');
+        console.log('📸 相册已加载，照片数: ' + MY_PHOTOS.length);
     </script>
 </body>
 </html>
