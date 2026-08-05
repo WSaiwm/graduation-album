@@ -158,7 +158,9 @@
     </div>
 
     <script>
-        // 直接列出所有照片（不检测，直接显示）
+        // ============================================================
+        // 直接列出所有照片（来自 git ls-tree 的确认结果）
+        // ============================================================
         const MY_PHOTOS = [
             "photos/36.jpg",
             "photos/37.jpg",
@@ -209,6 +211,11 @@
         let currentIndex = 0;
 
         function renderPhotos() {
+            if (MY_PHOTOS.length === 0) {
+                photoGrid.innerHTML = '<p style="color:#fff; text-align:center; grid-column:1/-1; padding:50px; font-size:18px;">还没有照片</p>';
+                return;
+            }
+
             let html = '';
             MY_PHOTOS.forEach((url, index) => {
                 html += `
