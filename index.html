@@ -1,33 +1,35 @@
-html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>🎓 毕业相册</title>
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             background: #1a1a2e;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: Arial, "Microsoft YaHei", sans-serif;
             min-height: 100vh;
             padding: 20px;
         }
+
         .container {
             background: #16213e;
             border-radius: 20px;
             padding: 20px;
-            max-width: 1200px;
             width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
+
         h1 {
             color: #fff;
             text-align: center;
@@ -36,245 +38,585 @@ html
             font-weight: 300;
             letter-spacing: 2px;
         }
+
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
-            margin-bottom: 20px;
         }
+
         .photo-card {
+            position: relative;
             background: #0f3460;
             border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.2s;
-            aspect-ratio: 1;
+            aspect-ratio: 1 / 1;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
+
         .photo-card:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
+
         .photo-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
+
+        /* 图片加载失败提示 */
+        .photo-error {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            color: #fff;
+            background: #8b1e3f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 灯箱 */
         .lightbox {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.92);
             z-index: 9999;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
+
         .lightbox.active {
             display: flex;
         }
+
         .lightbox img {
             max-width: 90%;
             max-height: 85vh;
+            object-fit: contain;
             border-radius: 10px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
-        .lightbox .close {
+
+        .close {
             position: absolute;
-            top: 30px;
-            right: 40px;
+            top: 25px;
+            right: 30px;
             color: #fff;
             font-size: 40px;
             cursor: pointer;
             background: none;
             border: none;
-            transition: 0.3s;
+            z-index: 10;
         }
-        .lightbox .close:hover {
-            transform: rotate(90deg);
-        }
-        .lightbox .nav {
+
+        .nav {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
             color: #fff;
             font-size: 50px;
             cursor: pointer;
-            background: rgba(255,255,255,0.1);
-            padding: 20px 15px;
-            border-radius: 10px;
-            user-select: none;
-            transition: 0.3s;
+            background: rgba(255,255,255,0.12);
             border: none;
+            width: 60px;
+            height: 80px;
+            border-radius: 12px;
+            z-index: 10;
         }
-        .lightbox .nav:hover {
-            background: rgba(255,255,255,0.3);
+
+        .nav:hover {
+            background: rgba(255,255,255,0.25);
         }
-        .lightbox .prev {
+
+        .prev {
             left: 20px;
         }
-        .lightbox .next {
+
+        .next {
             right: 20px;
         }
-        .lightbox .counter {
+
+        .counter {
             position: absolute;
-            bottom: 30px;
+            bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
             color: #fff;
-            font-size: 18px;
-            background: rgba(0,0,0,0.5);
+            font-size: 17px;
+            background: rgba(0,0,0,0.55);
             padding: 8px 20px;
             border-radius: 30px;
         }
+
+        /* 手机端 */
         @media (max-width: 600px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 12px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+
             .photo-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 10px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
-            .lightbox .nav {
+
+            .photo-card {
+                border-radius: 8px;
+            }
+
+            .lightbox {
+                padding: 10px;
+            }
+
+            .lightbox img {
+                max-width: 95%;
+                max-height: 80vh;
+            }
+
+            .nav {
+                width: 45px;
+                height: 60px;
+                font-size: 35px;
+            }
+
+            .prev {
+                left: 5px;
+            }
+
+            .next {
+                right: 5px;
+            }
+
+            .close {
+                top: 10px;
+                right: 15px;
                 font-size: 30px;
-                padding: 15px 10px;
             }
-            .lightbox .prev { left: 10px; }
-            .lightbox .next { right: 10px; }
-            .lightbox .close { top: 20px; right: 20px; font-size: 30px; }
+
+            .counter {
+                bottom: 15px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>🎓 毕业 · 拾光</h1>
-        <div class="photo-grid" id="photoGrid"></div>
+
+<div class="container">
+
+    <h1>🎓 毕业 · 拾光</h1>
+
+    <div class="photo-grid" id="photoGrid"></div>
+
+</div>
+
+
+<!-- 图片放大窗口 -->
+<div class="lightbox" id="lightbox">
+
+    <button class="close" id="closeBtn">✕</button>
+
+    <button class="nav prev" id="prevBtn">‹</button>
+
+    <img id="lightboxImg" src="" alt="毕业照">
+
+    <button class="nav next" id="nextBtn">›</button>
+
+    <div class="counter" id="counter">
+        1 / 0
     </div>
 
-    <div class="lightbox" id="lightbox">
-        <button class="close" id="closeBtn">✕</button>
-        <button class="nav prev" id="prevBtn">‹</button>
-        <button class="nav next" id="nextBtn">›</button>
-        <img id="lightboxImg" src="" alt="毕业照">
-        <div class="counter" id="counter">1 / 0</div>
-    </div>
+</div>
 
-    <script>
-        // ============================================================
-        // 直接列出所有照片（硬编码，不检测）
-        // ============================================================
-        const MY_PHOTOS = [
-            "photos/36.jpg",
-            "photos/37.jpg",
-            "photos/38.jpg",
-            "photos/39.jpg",
-            "photos/40.jpg",
-            "photos/41.jpg",
-            "photos/44.jpg",
-            "photos/45.jpg",
-            "photos/46.jpg",
-            "photos/47.jpg",
-            "photos/48.jpg",
-            "photos/50.jpg",
-            "photos/51.jpg",
-            "photos/52.jpg",
-            "photos/53.jpg",
-            "photos/54.jpg",
-            "photos/55.jpg",
-            "photos/56.jpg",
-            "photos/57.jpg",
-            "photos/58.jpg",
-            "photos/59.jpg",
-            "photos/60.jpg",
-            "photos/61.jpg",
-            "photos/62.jpg",
-            "photos/63.jpg",
-            "photos/64.jpg",
-            "photos/65.JPG",
-            "photos/66.JPG",
-            "photos/67.jpg",
-            "photos/68.jpg",
-            "photos/69.jpg",
-            "photos/70.jpg",
-            "photos/71.jpg",
-            "photos/72.jpg",
-            "photos/73.jpg",
-            "photos/74.jpg"
-        ];
 
-        const photoGrid = document.getElementById('photoGrid');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightboxImg');
-        const counter = document.getElementById('counter');
-        const closeBtn = document.getElementById('closeBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
+<script>
 
-        let currentIndex = 0;
+    /*
+    ============================================================
+    你的照片列表
+    ============================================================
+    */
 
-        function renderPhotos() {
-            let html = '';
-            MY_PHOTOS.forEach((url, index) => {
-                html += `
-                    <div class="photo-card" data-index="${index}">
-                        <img src="${url}" alt="毕业照 ${index+1}" loading="lazy" onerror="console.log('加载失败: ${url}')">
-                    </div>
-                `;
+    const MY_PHOTOS = [
+
+        "photos/36.jpg",
+        "photos/37.jpg",
+        "photos/38.jpg",
+        "photos/39.jpg",
+        "photos/40.jpg",
+        "photos/41.jpg",
+
+        "photos/44.jpg",
+        "photos/45.jpg",
+        "photos/46.jpg",
+        "photos/47.jpg",
+        "photos/48.jpg",
+
+        "photos/50.jpg",
+        "photos/51.jpg",
+        "photos/52.jpg",
+        "photos/53.jpg",
+        "photos/54.jpg",
+        "photos/55.jpg",
+        "photos/56.jpg",
+        "photos/57.jpg",
+        "photos/58.jpg",
+        "photos/59.jpg",
+        "photos/60.jpg",
+        "photos/61.jpg",
+        "photos/62.jpg",
+        "photos/63.jpg",
+        "photos/64.jpg",
+
+        /*
+        注意：
+        这里暂时统一使用 .jpg
+
+        如果你的 GitHub photos 文件夹里
+        实际是 65.JPG / 66.JPG
+        再改回来。
+        */
+
+        "photos/65.jpg",
+        "photos/66.jpg",
+
+        "photos/67.jpg",
+        "photos/68.jpg",
+        "photos/69.jpg",
+        "photos/70.jpg",
+        "photos/71.jpg",
+        "photos/72.jpg",
+        "photos/73.jpg",
+        "photos/74.jpg"
+
+    ];
+
+
+    /*
+    ============================================================
+    获取页面元素
+    ============================================================
+    */
+
+    const photoGrid = document.getElementById("photoGrid");
+
+    const lightbox = document.getElementById("lightbox");
+
+    const lightboxImg = document.getElementById("lightboxImg");
+
+    const counter = document.getElementById("counter");
+
+    const closeBtn = document.getElementById("closeBtn");
+
+    const prevBtn = document.getElementById("prevBtn");
+
+    const nextBtn = document.getElementById("nextBtn");
+
+
+    let currentIndex = 0;
+
+
+    /*
+    ============================================================
+    显示照片
+    ============================================================
+    */
+
+    function renderPhotos() {
+
+        photoGrid.innerHTML = "";
+
+        MY_PHOTOS.forEach(function(url, index) {
+
+            const card = document.createElement("div");
+
+            card.className = "photo-card";
+
+            const img = document.createElement("img");
+
+            img.src = url;
+
+            img.alt = "毕业照 " + (index + 1);
+
+            img.loading = "lazy";
+
+
+            /*
+            图片加载失败
+            */
+
+            img.onerror = function() {
+
+                console.error("图片加载失败：", url);
+
+                card.innerHTML = "";
+
+                const errorBox = document.createElement("div");
+
+                errorBox.className = "photo-error";
+
+                errorBox.innerHTML =
+                    "⚠️ 图片加载失败<br><br>" +
+                    url +
+                    "<br><br>请检查 GitHub 中的文件名和大小写";
+
+                card.appendChild(errorBox);
+            };
+
+
+            card.appendChild(img);
+
+
+            /*
+            点击打开大图
+            */
+
+            card.addEventListener("click", function() {
+
+                openLightbox(index);
+
             });
-            photoGrid.innerHTML = html;
 
-            document.querySelectorAll('.photo-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const idx = parseInt(this.dataset.index);
-                    openLightbox(idx);
-                });
-            });
 
-            counter.textContent = `1 / ${MY_PHOTOS.length}`;
-            document.title = `🎓 毕业相册 (${MY_PHOTOS.length}张)`;
-        }
+            photoGrid.appendChild(card);
 
-        function openLightbox(index) {
-            currentIndex = index;
-            lightboxImg.src = MY_PHOTOS[currentIndex];
-            counter.textContent = `${currentIndex + 1} / ${MY_PHOTOS.length}`;
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function prevPhoto() {
-            currentIndex = (currentIndex - 1 + MY_PHOTOS.length) % MY_PHOTOS.length;
-            lightboxImg.src = MY_PHOTOS[currentIndex];
-            counter.textContent = `${currentIndex + 1} / ${MY_PHOTOS.length}`;
-        }
-
-        function nextPhoto() {
-            currentIndex = (currentIndex + 1) % MY_PHOTOS.length;
-            lightboxImg.src = MY_PHOTOS[currentIndex];
-            counter.textContent = `${currentIndex + 1} / ${MY_PHOTOS.length}`;
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (!lightbox.classList.contains('active')) return;
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowLeft') prevPhoto();
-            if (e.key === 'ArrowRight') nextPhoto();
         });
 
-        closeBtn.addEventListener('click', closeLightbox);
-        prevBtn.addEventListener('click', prevPhoto);
-        nextBtn.addEventListener('click', nextPhoto);
 
-        lightbox.addEventListener('click', function(e) {
-            if (e.target === lightbox) closeLightbox();
-        });
+        counter.textContent =
+            "1 / " + MY_PHOTOS.length;
 
-        renderPhotos();
-        console.log('📸 相册已加载，照片数: ' + MY_PHOTOS.length);
-    </script>
+        document.title =
+            "🎓 毕业相册 (" + MY_PHOTOS.length + "张)";
+
+
+        console.log(
+            "📸 相册加载完成，共 " +
+            MY_PHOTOS.length +
+            " 张照片"
+        );
+
+    }
+
+
+    /*
+    ============================================================
+    打开大图
+    ============================================================
+    */
+
+    function openLightbox(index) {
+
+        currentIndex = index;
+
+        lightboxImg.src =
+            MY_PHOTOS[currentIndex];
+
+        counter.textContent =
+            (currentIndex + 1) +
+            " / " +
+            MY_PHOTOS.length;
+
+        lightbox.classList.add("active");
+
+        document.body.style.overflow = "hidden";
+
+    }
+
+
+    /*
+    ============================================================
+    关闭大图
+    ============================================================
+    */
+
+    function closeLightbox() {
+
+        lightbox.classList.remove("active");
+
+        document.body.style.overflow = "";
+
+    }
+
+
+    /*
+    ============================================================
+    上一张
+    ============================================================
+    */
+
+    function prevPhoto() {
+
+        currentIndex--;
+
+        if (currentIndex < 0) {
+
+            currentIndex =
+                MY_PHOTOS.length - 1;
+
+        }
+
+        updateLightbox();
+
+    }
+
+
+    /*
+    ============================================================
+    下一张
+    ============================================================
+    */
+
+    function nextPhoto() {
+
+        currentIndex++;
+
+        if (currentIndex >= MY_PHOTOS.length) {
+
+            currentIndex = 0;
+
+        }
+
+        updateLightbox();
+
+    }
+
+
+    /*
+    ============================================================
+    更新大图
+    ============================================================
+    */
+
+    function updateLightbox() {
+
+        lightboxImg.src =
+            MY_PHOTOS[currentIndex];
+
+        counter.textContent =
+            (currentIndex + 1) +
+            " / " +
+            MY_PHOTOS.length;
+
+    }
+
+
+    /*
+    ============================================================
+    按钮
+    ============================================================
+    */
+
+    closeBtn.addEventListener(
+        "click",
+        closeLightbox
+    );
+
+
+    prevBtn.addEventListener(
+        "click",
+        prevPhoto
+    );
+
+
+    nextBtn.addEventListener(
+        "click",
+        nextPhoto
+    );
+
+
+    /*
+    ============================================================
+    点击黑色背景关闭
+    ============================================================
+    */
+
+    lightbox.addEventListener(
+        "click",
+        function(e) {
+
+            if (e.target === lightbox) {
+
+                closeLightbox();
+
+            }
+
+        }
+    );
+
+
+    /*
+    ============================================================
+    键盘控制
+    ============================================================
+    */
+
+    document.addEventListener(
+        "keydown",
+        function(e) {
+
+            if (!lightbox.classList.contains("active")) {
+
+                return;
+
+            }
+
+
+            if (e.key === "Escape") {
+
+                closeLightbox();
+
+            }
+
+
+            if (e.key === "ArrowLeft") {
+
+                prevPhoto();
+
+            }
+
+
+            if (e.key === "ArrowRight") {
+
+                nextPhoto();
+
+            }
+
+        }
+    );
+
+
+    /*
+    ============================================================
+    开始加载
+    ============================================================
+    */
+
+    renderPhotos();
+
+</script>
+
 </body>
 </html>
